@@ -9,6 +9,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableBody from "@material-ui/core/TableBody";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // CSS
 import { withStyles } from "@material-ui/core/styles";
@@ -53,11 +54,27 @@ const styles = (theme) => ({
 //   },
 // ];
 
+/*
+  component 라이프 사이클
+  1) constructor()
+    - constructor를 불러오고
+  2) componentWillMount()
+    - component가 마운트 되기 전에 componentWillMount함수가 불러와 지고
+  3) render()
+    - 실제로 component를 화면에 그리고
+  4) componentDidMount()
+    - 그 이후에 componentDidMount함수가 불러와짐
+
+  그리고
+  props or state가 변경되는 경우 shouldComponentUpdate()함수 등이 사용이 되어서
+  실질적으로 다시 render함수를 불러와서 뷰를 갱신해주게 됨
+*/
+
 class App extends Component {
   // state는 변경될 수 있는 데이터를 처리할 때 사용
   state = {
     customers: "",
-  }
+  };
 
   // api서버에 접근을 해서 데이터를 받아오는 등의 작업은 componentDidMount에서 해줄 수 있음
   // 모든 component가 실제로 마운트가 완료가 되었을때 작동
@@ -126,21 +143,27 @@ class App extends Component {
               // map 함수를 사용할때에는 key 값이 있어야 함.
               // 위에서 state안에 값들을 비동기적으로 가져 왔기 때문에 처음에는 값이 비어져 있기 때문에 오류가 발생함
               // 따라서 조건을 주어서 데이터 값이 존재 할 경우에만 출력 될 수 있도록 해줌
-              this.state.customers
-                ? this.state.customers.map((c) => {
-                    return (
-                      <Customer
-                        key={c.id}
-                        id={c.id}
-                        image={c.image}
-                        name={c.name}
-                        birthday={c.birthday}
-                        gender={c.gender}
-                        job={c.job}
-                      />
-                    );
-                  })
-                : ""
+              this.state.customers ? (
+                this.state.customers.map((c) => {
+                  return (
+                    <Customer
+                      key={c.id}
+                      id={c.id}
+                      image={c.image}
+                      name={c.name}
+                      birthday={c.birthday}
+                      gender={c.gender}
+                      job={c.job}
+                    />
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan="6" align="center">
+                    <CircularProgress variant="indeterminate" />
+                  </TableCell>
+                </TableRow>
+              )
             }
           </TableBody>
         </Table>
