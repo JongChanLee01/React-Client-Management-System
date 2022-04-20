@@ -1,3 +1,4 @@
+const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
@@ -6,38 +7,66 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const data = fs.readFileSync("./database.json");
+// 해당 환경설정 데이터를 파싱 해서 가져올 수 있도록 함
+const conf = JSON.parse(data);
+
+// require에 있는 mysql 라이브러리를 불러와서 변수 mysql에 담도록 함
+const mysql = require("mysql");
+
+// 실질적으로 연결하는 부분
+const connection = mysql.createConnection({
+  host: conf.host,
+  user: conf.user,
+  password: conf.password,
+  port: conf.port,
+  database: conf.database,
+});
+connection.connect();
+
 // api경로에 hello로 접속을 하면 아래 메시지를 보내도록 함
 // app.get("/api/hello", (req, res) => {
 //   res.send({ massage: "Hello Express!" });
 // });
 
 app.get("/api/customers", (req, res) => {
-  res.send([
-    {
-      id: 1,
-      image: "https://placeimg.com/64/64/1",
-      name: "이종찬",
-      birthday: "960000",
-      gender: "남자",
-      job: "취준생",
-    },
-    {
-      id: 2,
-      image: "https://placeimg.com/64/64/2",
-      name: "김영진",
-      birthday: "950000",
-      gender: "남자",
-      job: "맘스터치 지점장",
-    },
-    {
-      id: 3,
-      image: "https://placeimg.com/64/64/3",
-      name: "공태현",
-      birthday: "950000",
-      gender: "남자",
-      job: "프로그래머",
-    },
-  ]);
+  /*
+  res.send(
+      [
+      {
+        id: 1,
+        image: "https://placeimg.com/64/64/1",
+        name: "이종찬",
+        birthday: "960000",
+        gender: "남자",
+        job: "취준생",
+      },
+      {
+        id: 2,
+        image: "https://placeimg.com/64/64/2",
+        name: "김영진",
+        birthday: "950000",
+        gender: "남자",
+        job: "맘스터치 지점장",
+      },
+      {
+        id: 3,
+        image: "https://placeimg.com/64/64/3",
+        name: "공태현",
+        birthday: "950000",
+        gender: "남자",
+        job: "프로그래머",
+      },
+    ]
+  );
+  */
+  connection.query(
+    "SELECT * FROM CUSTOMER",
+    //가져온 데이터는 rows라는 변수로 처리
+    (err, rows, fields) => {
+      res.send(rows);
+    }
+  );
 });
 
 // 서버가 동작중이면 동작중인 것을 알려줄 수 있도록 출력
