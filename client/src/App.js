@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Customer from "./components/Customer";
+import CustomerAdd from "./components/CustomerAdd";
 import "./App.css";
 
 // Material-ui
@@ -72,9 +73,28 @@ const styles = (theme) => ({
 
 class App extends Component {
   // state는 변경될 수 있는 데이터를 처리할 때 사용
-  state = {
-    customers: "",
-  };
+  // state = {
+  //   customers: "",
+  // };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      customers: "",
+      completed: 0
+    }
+  }
+
+  stateRefresh = () => {
+    this.setState({
+      customers: "",
+      completed: 0
+    });
+    // 초기화 후 다시 고객 목록을 불러와야 하기 때문에 아래에 고객 데이터 부분을 가져옴
+    this.callApi()
+      .then((res) => this.setState({ customers: res }))
+      .catch((err) => console.log(err));
+  }
 
   // api서버에 접근을 해서 데이터를 받아오는 등의 작업은 componentDidMount에서 해줄 수 있음
   // 모든 component가 실제로 마운트가 완료가 되었을때 작동
@@ -99,8 +119,9 @@ class App extends Component {
     // props는 변경될 수 없는 그런 데이터를 명시 할때 사용
     const { classes } = this.props;
     return (
-      <Paper className={classes.root}>
-        {/* <Customer
+      <div>
+        <Paper className={classes.root}>
+          {/* <Customer
           id={customers[0].id}
           image={customers[0].image}
           name={customers[0].name}
@@ -125,49 +146,52 @@ class App extends Component {
           job={customers[2].job}
         /> */}
 
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>번호</TableCell>
-              <TableCell>이미지</TableCell>
-              <TableCell>이름</TableCell>
-              <TableCell>생년월일</TableCell>
-              <TableCell>성별</TableCell>
-              <TableCell>직업</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              // 위에 처럼 코드를 작성 할 경우 데이터가 늘어남에 따라 용량이 커지기 떄문에 반복함수를 사용하여 아래처럼 표현함.
-              // JavaScript에서는 map이라는 함수로 반복시킬 수 있음.
-              // map 함수를 사용할때에는 key 값이 있어야 함.
-              // 위에서 state안에 값들을 비동기적으로 가져 왔기 때문에 처음에는 값이 비어져 있기 때문에 오류가 발생함
-              // 따라서 조건을 주어서 데이터 값이 존재 할 경우에만 출력 될 수 있도록 해줌
-              this.state.customers ? (
-                this.state.customers.map((c) => {
-                  return (
-                    <Customer
-                      key={c.id}
-                      id={c.id}
-                      image={c.image}
-                      name={c.name}
-                      birthday={c.birthday}
-                      gender={c.gender}
-                      job={c.job}
-                    />
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan="6" align="center">
-                    <CircularProgress variant="indeterminate" />
-                  </TableCell>
-                </TableRow>
-              )
-            }
-          </TableBody>
-        </Table>
-      </Paper>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell>번호</TableCell>
+                <TableCell>이미지</TableCell>
+                <TableCell>이름</TableCell>
+                <TableCell>생년월일</TableCell>
+                <TableCell>성별</TableCell>
+                <TableCell>직업</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                // 위에 처럼 코드를 작성 할 경우 데이터가 늘어남에 따라 용량이 커지기 떄문에 반복함수를 사용하여 아래처럼 표현함.
+                // JavaScript에서는 map이라는 함수로 반복시킬 수 있음.
+                // map 함수를 사용할때에는 key 값이 있어야 함.
+                // 위에서 state안에 값들을 비동기적으로 가져 왔기 때문에 처음에는 값이 비어져 있기 때문에 오류가 발생함
+                // 따라서 조건을 주어서 데이터 값이 존재 할 경우에만 출력 될 수 있도록 해줌
+                this.state.customers ? (
+                  this.state.customers.map((c) => {
+                    return (
+                      <Customer
+                        key={c.id}
+                        id={c.id}
+                        image={c.image}
+                        name={c.name}
+                        birthday={c.birthday}
+                        gender={c.gender}
+                        job={c.job}
+                      />
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan="6" align="center">
+                      <CircularProgress variant="indeterminate" />
+                    </TableCell>
+                  </TableRow>
+                )
+              }
+            </TableBody>
+          </Table>
+        </Paper>
+
+        <CustomerAdd stateRefresh={this.stateRefresh} />
+      </div>
     );
   }
 }
