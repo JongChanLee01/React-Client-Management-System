@@ -69,7 +69,8 @@ app.get("/api/customers", (req, res) => {
   );
   */
   connection.query(
-    "SELECT * FROM CUSTOMER",
+    // 삭제되지 않은 데이터만 가져와야 하기 때문에 WHERE isDeleted = 0 을 추가함
+    "SELECT * FROM CUSTOMER WHERE isDeleted = 0",
     //가져온 데이터는 rows라는 변수로 처리
     (err, rows, fields) => {
       res.send(rows);
@@ -85,7 +86,7 @@ app.use("/image", express.static("./upload"));
 
 // post형식으로 사용자가 고객추가 데이터를 전송 했을 떄 처리하는 부분
 app.post("/api/customers", upload.single("image"), (req, res) => {
-  let sql = "INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)";
+  let sql = "INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?, now(), 0)";
   let image = "/image/" + req.file.filename;
   let name = req.body.name;
   let birthday = req.body.birthday;
@@ -94,9 +95,20 @@ app.post("/api/customers", upload.single("image"), (req, res) => {
 
   // 앞에 sql구문에 나머지 5개가 정확히 어떤 것인지 설정
   let params = [image, name, birthday, gender, job];
-  connection.query(sql, params, 
-    (err, rows, fields) => {
-      res.send(rows);
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
+  });
+});
+
+app.delete("/api/customers/:id", (req, res) => {
+  let sql = "UPDATE CUSTOMER SET isDeleted = 1 WHERE id = ?";
+
+  // id를 선택해서
+  let params = [req.params.id];
+
+  // 쿼리부분을 지우겠다고 해줌
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
   });
 });
 
