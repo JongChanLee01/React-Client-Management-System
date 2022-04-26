@@ -4,6 +4,19 @@
 
 import React from "react";
 import { post } from "axios";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = (theme) => ({
+  hidden: {
+    display: "none",
+  },
+});
 
 class CustomerAdd extends React.Component {
   constructor(props) {
@@ -15,8 +28,15 @@ class CustomerAdd extends React.Component {
       gender: "",
       job: "",
       fileName: "",
+      open: false,
     };
   }
+
+  // 고정된 내용이 아닌 변동되는 데이터, 즉 state를 이용하는 경우 바인딩 처리를 해주어야함
+  // 1. 가장 간단한 방법은 arrow함수로 작성을 해주는 것
+  //    - handleClick = () => {}
+  // 2. 초기화 하는 부분에서 해당 함수에 직접적으로 바인딩 처리하는 법
+  //    - this.handleClick = this.handleClick.bind(this);
 
   // 고객 추가
   handleFormSubmit = (e) => {
@@ -38,6 +58,7 @@ class CustomerAdd extends React.Component {
       gender: "",
       job: "",
       fileName: "",
+      open: false,
     });
     // window.location.reload();
   };
@@ -82,60 +103,142 @@ class CustomerAdd extends React.Component {
     return post(url, formData, config);
   };
 
+  handleClickOpen = () => {
+    this.setState({
+      open: true,
+    });
+  };
+  handleClose = () => {
+    this.setState({
+      file: null,
+      userName: "",
+      birthday: "",
+      gender: "",
+      job: "",
+      fileName: "",
+      open: false,
+    });
+  };
+
   render() {
+    const { classes } = this.props;
     return (
-      <form onSubmit={this.handleFormSubmit}>
-        <h1>고객 추가</h1>
-        {/* 
+      <div>
+        <Button variant="contained" color="primary" onClick={this.handleClickOpen}>
+          고객 추가하기
+        </Button>
+        <Dialog open={this.state.open} onClose={this.handleClose}>
+          <DialogTitle>고객 추가</DialogTitle>
+          <DialogContent>
+             <input
+              className={classes.hidden}
+              id="raised-button-file"
+              type="file"
+              name="file"
+              file={this.state.file}
+              value={this.state.fileName}
+              onChange={this.handleFileChange}
+              accept="image/*"
+            />
+            <br />
+            {/* htmlFor 속성은 htmlFor에 input의 id나 className을 적어 input과 연결해줌 */}
+            <label htmlFor="raised-button-file">
+              <Button variant="contained" color="primary" component="span" name="file">
+                {this.state.fileName === "" ? "프로필 이미지 선택" : this.state.fileName}
+              </Button>
+            </label>
+            <br />
+            <TextField
+              label="이름"
+              type="text"
+              name="userName"
+              value={this.state.userName}
+              onChange={this.handleValueChange}
+            />
+            <br />
+            <TextField
+              label="생년월일"
+              type="text"
+              name="birthday"
+              value={this.state.birthday}
+              onChange={this.handleValueChange}
+            />
+            <br />
+            <TextField
+              label="성별"
+              type="text"
+              name="gender"
+              value={this.state.gender}
+              onChange={this.handleValueChange}
+            />
+            <br />
+            <TextField
+              label="직업"
+              type="text"
+              name="job"
+              value={this.state.job}
+              onChange={this.handleValueChange}
+            />
+            <br />
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="primary" onClick={this.handleFormSubmit}>추가</Button>
+            <Button variant="outlined" color="primary" onClick={this.handleClose}>닫기</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+      // <form onSubmit={this.handleFormSubmit}>
+      // <h1>고객 추가</h1>
+      /* 
           실제로 값이 들어갈 때에는 name속성에 있는 file값을 기준으로 해서 들어감
           name속성에 file이라는 변수 값을 이용해서 해당 프로필 이미지에 해당하는 파일 값을 받아올 수 있음
-        */}
-        프로필 이미지:
-        <input
-          type="file"
-          name="file"
-          file={this.state.file}
-          value={this.state.fileName}
-          onChange={this.handleFileChange}
-          accept="image/*"
-        />
-        <br />
-        이름 :
-        <input
-          type="text"
-          name="userName"
-          value={this.state.userName}
-          onChange={this.handleValueChange}
-        />
-        <br />
-        생년월일:
-        <input
-          type="text"
-          name="birthday"
-          value={this.state.birthday}
-          onChange={this.handleValueChange}
-        />
-        <br />
-        성별:
-        <input
-          type="text"
-          name="gender"
-          value={this.state.gender}
-          onChange={this.handleValueChange}
-        />
-        <br />
-        직업:
-        <input
-          type="text"
-          name="job"
-          value={this.state.job}
-          onChange={this.handleValueChange}
-        />
-        <br />
-        <button type="submit">추가하기</button>
-      </form>
+        */
+      //   프로필 이미지:
+      //   <input
+      //     type="file"
+      //     name="file"
+      //     file={this.state.file}
+      //     value={this.state.fileName}
+      //     onChange={this.handleFileChange}
+      //     accept="image/*"
+      //   />
+      //   <br />
+      //   이름 :
+      //   <input
+      //     type="text"
+      //     name="userName"
+      //     value={this.state.userName}
+      //     onChange={this.handleValueChange}
+      //   />
+      //   <br />
+      //   생년월일:
+      //   <input
+      //     type="text"
+      //     name="birthday"
+      //     value={this.state.birthday}
+      //     onChange={this.handleValueChange}
+      //   />
+      //   <br />
+      //   성별:
+      //   <input
+      //     type="text"
+      //     name="gender"
+      //     value={this.state.gender}
+      //     onChange={this.handleValueChange}
+      //   />
+      //   <br />
+      //   직업:
+      //   <input
+      //     type="text"
+      //     name="job"
+      //     value={this.state.job}
+      //     onChange={this.handleValueChange}
+      //   />
+      //   <br />
+      //   <button type="submit">추가하기</button>
+      // </form>
     );
   }
 }
 
-export default CustomerAdd;
+export default withStyles(styles)(CustomerAdd);
